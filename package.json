@@ -1,0 +1,35 @@
+{
+  "name": "delilah_resto",
+  "version": "1.0.0",
+  "description": "'API para el manejo de los usuarios, los productos y los pedidos de Delilah Restó'.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luigi1036/luigi1036.github.io.git"
+  },
+  "keywords": [
+    "acamica",
+    "delilah",
+    "resto",
+    "node",
+    "express"
+  ],
+  "author": "Luis Serna",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/luigi1036/luigi1036.github.io/issues"
+  },
+  "homepage": "https://github.com/luigi1036/luigi1036.github.io#readme",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mysql2": "^2.2.5",
+    "nodemon": "^2.0.7",
+    "sequelize": "^6.6.2"
+  }
+}
