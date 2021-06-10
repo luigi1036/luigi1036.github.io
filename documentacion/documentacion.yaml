@@ -1,0 +1,733 @@
+openapi: 3.0.0
+info:
+  title: Delilah Restó
+  description: 'API para el manejo de los usuarios, los productos y los pedidos de Delilah Restó'
+  contact:
+    name: Luis Serna
+    email: luissernag77@gmail.com
+  license:
+    name: Apache 2.0 
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  version: 1.0.0
+
+servers:
+  # Added by API Auto Mocking Plugin
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/luigi1036/Delilah_Resto/1.0.0
+  - url: https://virtserver.swaggerhub.com/andres5428/Delilah_Resto/1.0.0
+    description: SwaggerHub API Auto Mocking
+   
+
+paths:
+  /usuarios:
+    post:
+      tags:
+        - Usuarios
+      summary: Crear un Usuario
+      description: Crear un Usuario en la DB.
+      operationId: createUser
+      parameters: 
+      - name: usuario
+        in: query
+        description: Crea un usuario
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+              description: username del usuario
+              example: "luis1036"
+            password:
+              type: string
+              description: password del usuario
+              example: "mipassw123"
+            nombre:
+              type: string
+              description: nombre del usuario
+              example: "luis"
+            apellido:
+              type: string
+              description: apellido del usuario
+              example: "serna"
+            email:
+              type: string
+              description: email del usuario
+              example: "luissernag@hotmail.com"
+            telefono:
+              type: string
+              description: telefono del usuario
+              example: "125897456"
+            direccion:
+              type: string
+              description: direccion del usuario
+              example: "calle 23 c"
+      requestBody:
+        description: Usuario Creado
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Usuario"
+        required: true
+      security: []
+      responses:
+        200:
+          description: Usuario Creado Correctamente
+        400:
+          description: Error validando la informacion
+        409:
+          description: Username ya existe, intente con otro email
+        default:
+          $ref: "#/components/responses/Default"
+
+    get:
+      tags:
+        - Usuarios
+      summary: Obtiene una lista de todos los usuarios existentes(si es admin) o detalles de la cuenta de usuario (si no es admin)
+      description: Obtiene una lista de todos los usuarios existentes en la base de datos
+      operationId: getInformacionUsuario
+      
+      responses:
+        200:
+          description: Operacion Exitosa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/infoUsuario"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        404:
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Default"
+  /usuarios/login:
+    post:
+      tags:
+        - Usuarios
+      security: []
+      summary: Loguea al Usuario en el Sistema
+      operationId: loginUsuario
+      parameters:
+        - name: username o email
+          in: query
+          description: Username o email del usuario
+          example: "luissernag@hotmail.com - luis1036"
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: El Password para Iniciar session.
+          example: "mipassw123"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: operacion Exitosa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        400:
+          description: Contraseña/Username Invalido
+        401:
+          $ref: "#/components/responses/Disabled"
+        default:
+          $ref: "#/components/responses/Default"
+
+  /Usuarios/:{username}:
+    get:
+      tags:
+        - Usuarios
+      summary: Obtiene un Usuario por su username
+      operationId: getUsuarioXusername
+      parameters:
+        - name: username
+          in: path
+          description: El username a Buscar
+          example: "luis1036"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Operacion Exitosa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/infoUsuario"
+        401:
+          $ref: "#/components/responses/UnauthorizedAdmin"
+        404:
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Default"
+    put:
+      tags:
+        - Usuarios
+      summary: Edita un Usuario Mediante su Username
+      description: Edita un nombre de usuario obtenido por su nombre de usuario Se puede enviar el objeto completo o solo los parámetros que necesitan ser modificados.
+      operationId: updateUsuario
+      parameters:
+        - name: username
+          in: path
+          description: username a Actualizar
+          example: luis1036
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Usuario Actualizado
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Usuario"
+      responses:
+        200:
+          description: "El usuario {username} Se ha Actualzado Correctamente"
+        401:
+          $ref: "#/components/responses/UnauthorizedAdmin"
+        404:
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Default"
+
+    delete:
+      tags:
+        - Usuarios
+      summary: Elimina(Deshabilita) Un Usuario
+      description: Solo  se Realiza Si se Loguea Como Admin
+      operationId: deleteUsuario
+      parameters:
+        - name: username
+          in: path
+          description: Username a Eliminar
+          example: luuis1036
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "El Usuario {username}  se ha Eliminado Correctamente"
+        401:
+          $ref: "#/components/responses/UnauthorizedAdmin"
+        404:
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Default"
+
+  /productos:
+    get:
+      tags:
+        - Productos
+      summary: Obtenga una lista de todos los productos disponibles
+      description: Retorna la lista de los productos disponibles
+      operationId: getProductos
+      parameters:
+        - name: buscador
+          in: query
+          description: palabra a buscar
+          schema:
+            type: string
+      responses:
+        200:
+          description: Operacion Exitosa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Productos"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        404:
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Default"
+
+    post:
+      tags:
+        - Productos
+      summary: Agrega un Producto
+      description: Agrega un Producto a la DB
+      operationId: addProducto
+      requestBody:
+        description: palabra a buscar
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Producto"
+        required: true
+      responses:
+        200:
+          description: Product added succesfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  example: -2
+        400:
+          description: Error validating input data
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/Default"
+
+  /productos/:{id}:
+    get:
+      tags:
+        - Productos
+      summary: Obtiene Un Producto mediante su Id
+      description: Devuelve un Producto Obtenido Mediante su Id
+      parameters:
+        - name: id
+          in: path
+          description: Id del producto a consultar
+          required: true
+          schema:
+            type: string
+      operationId: getProductoXId
+      responses:
+        200:
+          description: Operacion Exitosa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Producto"
+        400:
+          description: Error Validando la Informacion
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        404:
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Default"
+
+    put:
+      tags:
+        - Productos
+      summary: Edita un Producto mediante su Id 
+      description: Edita un Producto Obtenido Mediante su ID
+      parameters:
+        - name: id
+          in: path
+          description: Id del producto a consultar
+          required: true
+          schema:
+            type: string
+      operationId: editProduct
+      requestBody:
+        description: Modification data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Producto"
+        required: true
+      responses:
+        200:
+          description: "El Producto con id {Id} Fue Modificado Correctamente"
+        400:
+          description: Error Validando la Informacion
+        401:
+          $ref: "#/components/responses/UnauthorizedAdmin"
+        404:
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Default"
+
+    delete:
+      tags:
+        - Productos
+      summary: Deshabilitar un Producto Mediente su Id
+      description: Deshabilitar un Producto Mediente su Id
+      parameters:
+        - name: id
+          in: path
+          description: Id del Producto a Dshabilitar
+          required: true
+          schema:
+            type: string
+      operationId: eliminarProducto
+      responses:
+        200:
+          description: "El Producto con  id ${productId} se ha Deshabilitado Correctamente"
+        401:
+          $ref: "#/components/responses/UnauthorizedAdmin"
+        404:
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Default"
+
+  /ordenes:
+    get:
+      tags:
+        - Ordenes
+      summary: Obtiene la Lista de Ordenes
+      description: Si el usuario es administrador, devuelve una lista de todos los pedidos, si el usuario no es administrador, solo devuelve una lista de sus pedidos.
+      operationId: getOrdenes
+      responses:
+        200:
+          description: Operacion Exitosa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ordenes"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        404:
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Default"
+
+    post:
+      tags:
+        - Ordenes
+      summary: Agregar un Producto a la Orden
+      description: Agregar un Producto 
+      operationId: agregar Orden
+      requestBody:
+        description: Orden a Crear
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NuevaOrden"
+        required: true
+      responses:
+        200:
+          description: Se ha Modificado la Orden Correctamente
+        400:
+          description: Error validando la Informacion
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/Default"
+
+  /ordenes/:{id}:
+    get:
+      tags:
+        - Ordenes
+      summary: Obtiene una Orden Mediante su Id
+      parameters:
+        - name: id
+          in: path
+          description: Id de La Orden A buscar
+          example: 1
+          required: true
+          schema:
+            type: string
+      description: Devuelve el detalle de una orden específica, obtenida por su ID
+      operationId: getOrdenXId
+      responses:
+        200:
+          description: Operacion Exitosa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ordenes"
+        401:
+          $ref: "#/components/responses/UnauthorizedAdmin"
+        404:
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Default"
+
+    put:
+      tags:
+        - Ordenes
+      summary: Edita una Orden Mediante su Id
+      description: Edita una Orden Mediante su Idvv
+      operationId: editaOrden
+      parameters:
+        - name: id
+          in: path
+          description: Id de La Orden A buscar
+          example: 1
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Orden a Crear
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                estado_orden:
+                  type: string
+                  example: Entregada
+        required: true
+      responses:
+        200:
+          description: "La Orden con el  id {Id} se ha Modificado Correctamente"
+        400:
+          description: Error validando la Informacion
+        401:
+          $ref: "#/components/responses/UnauthorizedAdmin"
+        403:
+          description: El estado dado para la Orden no es válido
+        404:
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Default"
+
+components:
+  schemas:
+    Usuario:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 7
+        username:
+          type: string
+          example: luis1036
+        password:
+          type: string
+          example: pass1025
+        nombre:
+          type: string
+          example: luis
+        apellido:
+          type: string
+          example: serna
+        email:
+          type: string
+          example: luis@correo.com
+        telefono:
+          type: string
+          example: 528745896
+        direccion:
+          type: string
+          example: calle23 
+    infoUsuario:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 7
+          username:
+              type: string
+              example: luis1036
+          password:
+            type: string
+            example: pass1025
+          nombre:
+            type: string
+            example: luis
+          apellido:
+            type: string
+            example: serna
+          email:
+            type: string
+            example: luis@correo.com
+          telefono:
+            type: string
+            example: 528745896
+          direccion:
+            type: string
+            example: calle23 
+          is_admin:
+            type: boolean
+            example: 1
+          is_disabled:
+            type: boolean
+            example: 0
+    Producto:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        nombre:
+          type: string
+          example: Bagel de Salmon
+        precio:
+          type: number
+          example: 425
+        url:
+          type: string
+          example: resources/_images/bagel_salmon
+        descripcion:
+          type: string
+          example: salmón al estilo Gravlax, tomate o cebolla
+        is_disabled:
+          type: boolean
+          example: 0
+    Productos:
+      type: array
+      items:
+        $ref: "#/components/schemas/Producto"
+    OrdenProducto:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        orden_id:
+          type: integer
+          example: 5
+        producto_id:
+          type: integer
+          example: 5
+        cantidad_producto:
+          type: integer
+          example: 2
+        nombre:
+          type: string
+          example: Bagel de Salmon
+        precio:
+          type: number
+          example: 425
+        url:
+          type: string
+          example: resources/_images/bagel_salmon
+        descripcion:
+          type: string
+          example: salmón al estilo Gravlax, tomate o cebolla
+        is_disabled:
+          type: boolean
+          example: 0
+    OrdenProductos:
+      type: array
+      items:
+        $ref: "#/components/schemas/OrdenProducto"
+    Orden:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        estado:
+          type: string
+          example: nuevo
+        fecha:
+          type: string
+          format: date-time
+          example: "2021-06-07T10:11:12Z"
+        descripcion:
+          type: string
+          example: "1x Hamburguesa clasica"
+        metodo_pago:
+          type: string
+          example: tarjeta
+        total:
+          type: integer
+          example: 350
+        user_id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: samu0712
+        nombre:
+          type: string
+          example: "Samuel"
+        email:
+          type: string
+          example: sserna@correo.com
+        telefono:
+          type: integer
+          example: 555789654
+        direccion:
+          type: string
+          example: Calle 42c
+        products:
+          $ref: "#/components/schemas/OrdenProductos"
+    Ordenes:
+      type: array
+      items:
+        $ref: "#/components/schemas/Orden"
+    NuevaOrden:
+      type: object
+      properties:
+        metodo_pago:
+          type: string
+          example: efectivo
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              cantidad:
+                type: integer
+                example: 1
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Ha Ocurrido un Error: <error>"
+      required:
+        - error
+    Send:
+      type: string
+      example: "Mensaje de Error"
+      
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  # Reused Responses
+  responses:
+    UnauthorizedError:
+      description: Token Invalido
+    Disabled:
+      description: Cuenta de Usuario Desahibilitada
+    NotAdmin:
+      description: Operacion Prohibidad
+    NotFound:
+      description: No se Encontro el Recurso Solicitado
+    Default:
+      description: Error Inesperado
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: No Autorizado
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: "#/components/schemas/Send"
+          examples:
+            Token Invalidation:
+              summary: No Autorizado- Token Invalido
+              value: No Autorizado- Token Invalido
+            Disabled Account:
+              summary: No Autorizado - Cuenta deshabilitadad
+              value: No Autorizado - Cuenta de Usuario deshabilitadad
+    UnauthorizedAdmin:
+      description: No Autorizado
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: "#/components/schemas/Send"
+          examples:
+            Token Invalidation:
+              summary: No Autorizado- Token Invalido
+              value: No Autorizado- Token Invalido
+            Disabled Account:
+              summary: No Autorizado - Cuenta deshabilitadad
+              value: No Autorizado - Cuenta de Usuario deshabilitadad
+            Not Admin:
+              summary: No Autorizado - No es Admin
+              value: No Autorizado - No es admin
+
+security:
+  - bearerAuth: []
